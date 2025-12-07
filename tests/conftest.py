@@ -32,6 +32,7 @@ def browser(playwright, request):
 @pytest.fixture
 def browser_context(browser):
     context = browser.new_context()   # Fresh clean profile
+
     yield context
     context.close()
 
@@ -39,6 +40,7 @@ def browser_context(browser):
 @pytest.fixture
 def page(browser_context):
     page = browser_context.new_page()
+
     yield page
     page.close()
 
