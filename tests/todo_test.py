@@ -2,31 +2,13 @@ import pytest
 from playwright.sync_api import expect
 
 
+# covers scenarios #1-3 in task
 @pytest.mark.parametrize("task_name", ["task 1", "зробити 2"])
 def test_todo_add_task(todos_page, task_name):
     todos_page.open()
     todos_page.input_task_field.type(task_name)
     todos_page.page.keyboard.press("Enter")
 
-    expect(todos_page.get_tasks()[0].task_name).to_have_text(task_name)
-
-
-def test_todo_complete_task(todos_page):
-    # create task
-    task_name = "task"
-    todos_page.open()
-    todos_page.input_task_field.type(task_name)
-    todos_page.page.keyboard.press("Enter")
-    expect(todos_page.get_tasks()[0].task_name).to_have_text(task_name)
-
-    # complete task
-    todos_page.get_tasks()[0].toggle_todo.click()
-
-    # validate
-    expect(todos_page.get_tasks()[0].locator).to_have_class("completed")
-
-    # check in Completed
-    todos_page.filter_completed_button.click()
     expect(todos_page.get_tasks()[0].task_name).to_have_text(task_name)
 
 
@@ -74,3 +56,45 @@ def test_todo_delete_task_in_list(todos_page):
 
     todos_page.filter_active_button.click()
     expect(todos_page.added_tasks_list.filter(has_text=task1_name)).not_to_be_visible()
+
+
+def test_todo_active_task(todos_page):
+    # create tasks
+    task1_name = "task 1"
+    task2_name = "task 2"
+    todos_page.open()
+    todos_page.input_task_field.type(task1_name)
+    todos_page.page.keyboard.press("Enter")
+    todos_page.input_task_field.type(task2_name)
+    todos_page.page.keyboard.press("Enter")
+    expect(todos_page.added_tasks_list).to_have_count(2)
+
+    # complete task 1
+    todos_page.get_tasks()[0].toggle_todo.click()
+
+    # validate in Active
+    todos_page.filter_active_button.click()
+    expect(todos_page.added_tasks_list.filter(has_text=task2_name)).to_be_visible()
+    expect(todos_page.added_tasks_list.filter(has_text=task1_name)).not_to_be_visible()
+
+
+# covers scenario #4 in task as well
+def test_todo_completed_task(todos_page):
+    # create tasks
+    task1_name = "task 1"
+    task2_name = "task 2"
+    todos_page.open()
+    todos_page.input_task_field.type(task1_name)
+    todos_page.page.keyboard.press("Enter")
+    todos_page.input_task_field.type(task2_name)
+    todos_page.page.keyboard.press("Enter")
+    expect(todos_page.added_tasks_list).to_have_count(2)
+
+    # complete task 1
+    todos_page.get_tasks()[0].toggle_todo.click()
+
+    # validate
+    expect(todos_page.get_tasks()[0].locator).to_have_class("completed")
+    todos_page.filter_completed_button.click()
+    expect(todos_page.added_tasks_list.filter(has_text=task1_name)).to_be_visible()
+    expect(todos_page.added_tasks_list.filter(has_text=task2_name)).not_to_be_visible()

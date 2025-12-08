@@ -22,7 +22,7 @@ def browser(playwright, request):
     browser = playwright.chromium.launch(
         channel=browser_name,
         headless=str(headless).lower() == "true",
-        args=["--disable-gpu", "--use-angle=metal"]
+        args=["--start-maximized", "--disable-gpu", "--use-angle=metal"]
     )
 
     yield browser
@@ -31,7 +31,7 @@ def browser(playwright, request):
 
 @pytest.fixture
 def browser_context(browser):
-    context = browser.new_context()   # Fresh clean profile
+    context = browser.new_context(viewport=None)   # Fresh clean profile
 
     yield context
     context.close()
